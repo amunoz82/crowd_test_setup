@@ -301,7 +301,7 @@ def get_impersonation_cookies(user:UserData):
     url = f'{domain}alias?id={user.user_id}'
     headers = {
         "content-type": "application/x-www-form-urlencoded",
-        "Referer": referrer,
+        "referer": referrer,
         "Referrer-Policy": "strict-origin-when-cross-origin"}
     payload = {'authenticity_token': authenticity_token}
     response = send_post_request(url=url, headers=headers, payload=payload)
@@ -486,7 +486,7 @@ def get_cancellation_links(fulfillment_url:str):
             return f'{domain}{element.get('data-form-url')[1:]}'
     return None
 
-def cancel_reservation(url, referer, authenticity_token):
+def cancel_reservation(url, referrer, authenticity_token):
     """Cancel a reservation for a given appointment.
     Args:
         url (str): URL to cancel the reservation. ex. https://staging.proctoru.com/reservations/30506035/cancellations?fulfillment_id=42137121
@@ -495,12 +495,13 @@ def cancel_reservation(url, referer, authenticity_token):
     """
     logger.info(f'Canceling reservation for {url}')
     headers = {'content-type': 'application/x-www-form-urlencoded',
-               'Referer': referer,
-               'x-csrf-token': authenticity_token}
+               'referrer': referrer,
+               'x-csrf-token': authenticity_token,
+                'x-requested-with': 'XMLHttpRequest'}
     payload = {'cancellation[cancellation_reason_id]': 37,
-            'cancellation[explanation]': 'Session cancelled by Test-Taker',
+            'cancellation[explaination]': 'Session cancelled by Test-Taker',
             'cancellation[xvoucher_excused]': 'false',
-            'cancellation[credit]': None,
+            'cancellation[credit]': 'none',
             'cancellation[is_waived]': 'false'
         }
     return send_post_request(url=url,
@@ -551,24 +552,24 @@ def get_reservation_info() -> ReservationInfo | None:
 def main():
 
     # login
-    user_login(user_name='', password='')
+    user_login(user_name='amunoz@meazurelearning.com', password='L@rry$2405')
     # # **** Sample how to create users ****
     user_data = UserCreationData(
-            user_name_prefix="stagingproctor{}@proctoru.com", #alpha_tester{}",   #TIO_Crowd_Test
-            user_email_template="stagingproctor{}@proctoru.com",
-            user_first_name_prefix="Staging ",
+            user_name_prefix="crowd_tester_{}", #alpha_tester{}",   #TIO_Crowd_Test
+            user_email_template="crowd_tester_{}@ml.com",
+            user_first_name_prefix="Tester {} ",
             user_phone="123-456-7890",
-            default_password="Weteststuff1!",
-            user_last_name="Proctor{}",
+            default_password="Testing123",
+            user_last_name="Crowd",
             user_country="United States",
-            user_role_id=3,   # student demo role 925085493
-            institution_id="", #2099, # 6054, #958428203 institution demo
+            user_role_id=4,   # student demo role 925085493
+            institution_id="6054", #2099, # 6054, #958428203 institution demo
             user_time_zone="US/Central",
             py_time_zone=TimeZones.US_CENTRAL.value,
             location_id=6,
             user_state="AL"
     )
-    users = create_users(user_data, users_to_create=37, starting_sequence=14)
+    users = create_users(user_data, users_to_create=99, starting_sequence=102)
     logger.info(f'Users created: {users}')
     
     
@@ -581,8 +582,8 @@ def main():
     # reservation = schedule_sessions([user], ['2025-12-15 16:00'], ['11933087'])
     # logger.info(f'Reservation scheduled: {reservation}')
 
-    # **** Sample how to cancel reservations as admin ****
-    # cancel_reservations_as_admin(search_param='Kurento', 
+    # # **** Sample how to cancel reservations as admin ****
+    # cancel_reservations_as_admin(search_param='crowd_tester_', 
     #                              institution_id=6054, 
     #                              status=ReservationStatus.SCHEDULED.value, 
     #                              region=Regions.US_WEST.value)
